@@ -44,11 +44,17 @@ class _MyHomeState extends State<MyHome> {
     }).toList();
   }
 
-  void _addTransaction(String txTitle, double txAmount) {
+  void _addTransaction(String txTitle, double txAmount, DateTime theDate) {
     Transaction newTransaction = Transaction
-      (id: DateTime.now().toString(), title: txTitle, amount: txAmount, date: DateTime.now());
+      (id: DateTime.now().toString(), title: txTitle, amount: txAmount, date: theDate);
     setState(() {
       theTransactions.add(newTransaction);
+    });
+  }
+
+  void _deleteTransaction(String id) {
+    setState(() {
+      theTransactions.removeWhere((transaction) => transaction.id == id );
     });
   }
 
@@ -65,24 +71,34 @@ class _MyHomeState extends State<MyHome> {
 
   @override
   Widget build(BuildContext context) {
+    final appBar = AppBar(
+      actions: <Widget>[
+        IconButton(
+          icon: Icon(Icons.add),
+          onPressed: () => startAddNewTransaction(context),
+        ),
+      ],
+      title: Text("Text Here"),
+      backgroundColor: Colors.amberAccent,
+    );
     return SafeArea(
       child: Scaffold(
-        appBar: AppBar(
-          actions: <Widget>[
-            IconButton(
-              icon: Icon(Icons.add),
-              onPressed: () => startAddNewTransaction(context),
-            ),
-          ],
-          title: Text("Text Here"),
-          backgroundColor: Colors.amberAccent,
-        ),
+        appBar: appBar,
         body: SingleChildScrollView(
             child: Column(
               children: <Widget> [
-                Chart(recentTransactions: _recentTransactions),
-                theTransactions.isEmpty ? Text("ksong") :
-                TransactionList(transactions: theTransactions)
+                Container(
+                    height:( MediaQuery.of(context).size.height -
+                        appBar.preferredSize.height - MediaQuery.of(context).padding.top ) * 0.4,
+                    child: Chart(recentTransactions: _recentTransactions)
+                ),
+                Container(
+                  height: (MediaQuery.of(context).size.height -
+                      appBar.preferredSize.height - MediaQuery.of(context).padding.top ) * 0.6,
+                  child: theTransactions.isEmpty ? Text("ksong") :
+                  TransactionList(transactions: theTransactions, deleteTransaction: _deleteTransaction)
+                  ,
+                )
               ],
             ),
         ),
